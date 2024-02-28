@@ -8,7 +8,11 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
 from .serializers import *
 from rest_framework import status
+import requests
 # Create your views here.
+
+
+
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -51,3 +55,15 @@ def login(request):
             return Response({'message': 'Login successful.'})
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+# def get_nse_ticker(request, asset_name):
+    
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_nasdaq_ticker(request, asset):
+    print(asset)
+    response = requests.get("https://api.twelvedata.com/time_series?apikey=04ed091e9cac49aead575a1d1e1a3aa8&interval=1min&symbol={asset}&type=stock&format=JSON&exchange=NASDAQ&outputsize=1")
+    return Response(response)
+    
