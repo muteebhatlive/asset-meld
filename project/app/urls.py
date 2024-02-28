@@ -4,6 +4,6 @@ from .views import *
 urlpatterns = [
     path('register/', register, name='register'),
     path('login/', login, name='login'),
-    path('nasdaq/', get_nasdaq_ticker, name='nasdaq'),
+    path('nasdaq/<str:asset>/', get_nasdaq_ticker, name='get_nasdaq_ticker'),
     
 ]

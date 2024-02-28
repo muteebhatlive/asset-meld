@@ -64,6 +64,8 @@ def login(request):
 @permission_classes([AllowAny])
 def get_nasdaq_ticker(request, asset):
     print(asset)
-    response = requests.get("https://api.twelvedata.com/time_series?apikey=04ed091e9cac49aead575a1d1e1a3aa8&interval=1min&symbol={asset}&type=stock&format=JSON&exchange=NASDAQ&outputsize=1")
+    url = f'https://api.twelvedata.com/time_series?apikey=04ed091e9cac49aead575a1d1e1a3aa8&interval=1min&exchange=NASDAQ&outputsize=1&symbol={asset}'
+    response = requests.get(url)
+    print(response)
     return Response(response)
     
