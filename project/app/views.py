@@ -56,8 +56,27 @@ def login(request):
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         
+@api_view(['GET'])
+def get_nse_ticker(request, asset):
+    
+    pass
 
-# def get_nse_ticker(request, asset_name):
+@api_view(['GET'])
+def get_crypto_ticker(request, asset):
+    print(asset)
+    url = f'https://api.twelvedata.com/time_series?apikey=04ed091e9cac49aead575a1d1e1a3aa8&interval=1min&symbol={asset}/USD&outputsize=1&format=JSON'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        print(data)
+        if 'values' in data and data['values']:
+            close_price = data['values'][0]['close']
+            return Response({'close_price': close_price})
+        else:
+            return Response({'error': 'No data available for the given asset symbol.'}, status=404)
+    else:
+        return Response({'error': 'Failed to fetch data from the API.'}, status=response.status_code)
+
     
 
 @api_view(['GET'])
