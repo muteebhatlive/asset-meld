@@ -9,5 +9,9 @@ class Crypto(models.Model):
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity_purchased = models.DecimalField(max_digits=10, decimal_places=5)
     
+    @property
+    def total_dollar_amount(self):
+        return self.purchase_price * self.quantity_purchased
+    
     def __str__(self):
         return f"{self.user.username} - {self.asset_name}"

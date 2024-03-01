@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate, login
 from .serializers import *
 from rest_framework import status
 import requests
+from rest_framework_simplejwt.tokens import RefreshToken
+
 # Create your views here.
 
 
@@ -45,16 +47,38 @@ def register(request):
 
 
 
+# @api_view(['POST'])
+# def login(request):
+#     if request.method == 'POST':
+#         username = request.data.get('username')
+#         password = request.data.get('password')
+#         user = authenticate(username=username, password=password)
+#         if user:
+#             return Response({'message': 'Login successful.'})
+#         else:
+#             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 @api_view(['POST'])
 def login(request):
     if request.method == 'POST':
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(username=username, password=password)
-        if user:
-            return Response({'message': 'Login successful.'})
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+            user = authenticate(username=username, password=password)
+            if user:
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'message': 'Login successful.',
+                    'access_token': str(refresh.access_token),
+                    'refresh_token': str(refresh),
+                })
+            else:
+                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         
 @api_view(['GET'])
 def get_nse_ticker(request, asset):
@@ -94,6 +118,26 @@ def get_nasdaq_ticker(request, asset):
             return Response({'error': 'No data available for the given asset symbol.'}, status=404)
     else:
         return Response({'error': 'Failed to fetch data from the API.'}, status=response.status_code)
+    
+@api_view(['POST'])
+def add_crypto(request):
+    if request.method == 'POST':
+        serializer = CryptoSerializer(data=request.data)
+        if serializer.is_valid():
+            # Retrieve the authenticated user from the request
+            user = request.user
+            print(user)
+            print('1')
+            # Assign the user to the serializer's validated data
+            serializer.validated_data['user'] = user
+            print('1')
+            print(user.id)
+            # Save the serializer instance to create the Crypto object
+            serializer.save()
+            # Return a success response with the created data
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # Return a bad request response if the serializer data is invalid
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
     
