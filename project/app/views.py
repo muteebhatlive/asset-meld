@@ -124,19 +124,14 @@ def add_crypto(request):
     if request.method == 'POST':
         serializer = CryptoSerializer(data=request.data)
         if serializer.is_valid():
-            # Retrieve the authenticated user from the request
             user = request.user
             print(user)
             print('1')
-            # Assign the user to the serializer's validated data
             serializer.validated_data['user'] = user
             print('1')
             print(user.id)
-            # Save the serializer instance to create the Crypto object
             serializer.save()
-            # Return a success response with the created data
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # Return a bad request response if the serializer data is invalid
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
